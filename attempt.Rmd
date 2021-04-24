@@ -1,0 +1,131 @@
+---
+title: "EDFR Interview Questions"
+author: "Oswaldo Felix"
+date: "4/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+library(tidyverse)
+library(multicool)
+library(broom)
+library(rsample)
+```
+
+## Problem 1
+
+In each box of Cerebral Cereal, there is a plastic figurine portraying a well-known philospher. If there are 66 different philosphers, how many boxes would you have to buy on average to get a complete set?
+
+Seems as though this problem requires Stirling numbers of the second kind
+
+```{r}
+# Attempt 1 - code function explicitly 
+# Set up variables and matricies
+k <- 66 # number of unique philosphers
+n <- 100  # number of simulated cereal boxes - does not compute at n > 10
+i <- 0
+j <- 0
+results_k <- vector('numeric', length = k)
+results_n <-  vector('numeric', length = n)
+y <-  vector('numeric', length = k)
+p <-  vector('numeric', length = k)
+
+# Set up function inside nested loop
+stirling <- function(n, k) {
+  for (i in 0:n) {
+    for (j in 1:k) {
+     y[j] <- (-1)^(k-j)*((j^(n-1))/(factorial(j-1)*factorial(k-j)))
+     p[j] <- (factorial(k)*y[j])/k^n
+     results_k[j] <- p[j]
+    }
+  results_n[i] <- sum(results_k)
+  }
+}
+
+stirling(n, k) # only brings up zeros for first few results (makes sense)
+results_df <- data.frame(bought = 1:n, prob = results_n)
+```
+
+```{r}
+# 2nd attempt - Using 'Striling2' funciton in multicool package
+# Initialize variables and matricies
+n <- 100
+k <- 66
+results <- vector('numeric', length = n)
+
+# Takes a very long time to run
+for (i in 1:n){
+  probability <- (factorial(k)*Stirling2(n, k))/k^n
+  results[i] <- probability
+}
+
+# Aborted loop above and could not accurately assess results
+results_df <- data.frame(bought = 1:n, prob = results)
+```
+
+```{r}
+# 3rd attempt - Using 'Striling2' function with single given n
+# Initialize variables
+n <- 40
+k <- 66
+
+# Calculate
+probability <- (factorial(k)*Stirling2(n, k))/k^n
+
+# Seems like either R Studio or my computer can't evalue this expression (at n > 40)
+Stirling2(n, k)
+```
+
+```{r}
+# 4th attempt - Create an experimental model
+# Initialize variables and matricies
+runs <- 1000
+n <- 66
+purchased <- 0
+phil <- vector('numeric', length = 1000)
+results <- vector('numeric', length = runs)
+# time_to = defaultdict(Counter)
+ 
+for (i in 1:runs){
+  purchased <- 0 # reset 
+  phil <- vector('numeric', length = 1000) # reset
+  while (sum(unique(phil)) < 2211){ # check if unique sequence 1:66 exists
+    purchased <- purchased + 1 # buy cereal first
+    p <- sample(1:66, 1) # look at prize
+    phil[purchased] <- p #store prize
+   }
+  results[i] <- purchased
+}
+ 
+Avg = mean(results)
+```
+
+
+## Problem 2
+
+The 190 students in a course attend either the first or second hour of a seminar. When the choice was left to each student, only 85 students turned up the first hour and 105 the second hour. May we draw the conclusion that the second hour is more popular? Is the difference significant on the 95% level? On the 99% level? Formulate null hypothesis and test it in a simulation program.
+
+Null hypothesis: The proportion of students in the second class is equal to or less than those in the first
+
+I believe that bootstrapping can be used as simulation method, but I cannot figure out how to utilize it with binary data
+
+
+```{r}
+# Create data
+initial_df <- data.frame(first = c(85, 95), second = c(105, 95))
+
+# Statastical analysis
+my_chi_test <- chisq.test(initial_df)
+my_chi_test
+# provides a p-value that is not low enough to reject null hypothesis
+
+# 95% confidence intervals determined by forumla below
+# interval = proportion +/- 1.96 x sd
+p <-  initial_df$first[1]/(initial_df$first[1] + initial_df$second[1])
+sd <- sqrt(p*(1-p)/190)
+conf_95_upper <- p + 1.96*sd
+conf_95_lower <- p - 1.96*sd
+
+```
+

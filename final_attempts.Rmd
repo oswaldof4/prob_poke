@@ -1,0 +1,87 @@
+---
+title: "EDFR Interview Questions"
+author: "Oswaldo Felix"
+date: "4/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+library(tidyverse)
+```
+
+## Problem 1
+
+In each box of Cerebral Cereal, there is a plastic figurine portraying a well-known philospher. If there are n different philosphers, how many boxes would you have to buy on average to get a complete set?
+
+```{r}
+# Initialize variables and matricies
+runs <- 1000
+n <- 273
+s <- (n/2)*(1 + n)
+purchased <- 0
+results <- vector('numeric', length = runs)
+
+# Model
+for (i in 1:runs){
+  purchased <- 0 # reset 
+  phil <- vector('numeric', length = runs) # reset
+  while (sum(unique(phil)) < s){ # check if unique sequence 1:n exists
+    purchased <- purchased + 1 # counter
+    p <- sample(1:n, 1) # equal random chance
+    phil[purchased] <- p # store seed
+   }
+  results[i] <- purchased
+}
+ 
+avg = mean(results)
+```
+
+In this particular set of runs, the experimental average was `r round(avg)`. The higher the number of simulations the closer the experimental value converges to the theoretical value. At 10,000 runs the numbers converged around 314.
+
+## Problem 2
+
+The 190 students in a course attend either the first or second hour of a seminar. When the choice was left to each student, only 85 students turned up the first hour and 105 the second hour. May we draw the conclusion that the second hour is more popular? Is the difference significant on the 95% level? On the 99% level? Formulate null hypothesis and test it in a simulation program.
+
+Null hypothesis: There is no preference in student choice among seminar classes
+
+```{r}
+# Initialize variables and matricies
+runs <- 1000
+n <- 190
+results_1 <- vector('numeric', length = runs)
+results_2 <- vector('numeric', length = runs)
+
+# Model
+for (i in 1:runs){
+  count <- 0 # reset 
+  students <- vector('numeric', length = 190) # reset
+  while (count < n){ # continue until all students have chosen
+    count <- count + 1 # add one to count
+    choice <- sample(c(1,2), 1) # choose first or second room
+    students[count] <- choice # store prize
+   }
+  students <- as.data.frame(students) # change to data frame for functions
+  first <- students %>% 
+    filter(students == 1) %>% 
+    nrow() # counts number of students
+  second <- students %>% 
+    filter(students == 2) %>% 
+    nrow() # counts number of students
+  results_1[i] <- first
+  results_2[i] <- second
+}
+
+# Finalizing results dataframe
+results_f <- data.frame(results_1, results_2) %>% 
+  mutate(prop = results_1/results_2)
+
+# Running t-test
+sample <- results_f$prop
+null <- c(rep(1, runs))
+my_ttest <- t.test(sample, null)
+my_ttest # not significantly different
+```
+
+This is as far as I got with the second problem before running out of time. 
+These were fun to solve!
