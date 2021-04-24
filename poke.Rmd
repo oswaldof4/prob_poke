@@ -1,0 +1,67 @@
+---
+title: "prob_sim"
+author: "Oswaldo Felix"
+date: "4/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# Simulates catches given shiny rate and provides average number needed to ensure shiny catch
+shiny_rate <- 50
+
+if(shiny_rate > 200){ #max number of runs =1000
+  runs = 1000
+} else{
+  runs = shiny_rate*5
+}
+
+results <- vector('numeric', length = runs)
+ 
+for (i in 1:runs){
+  catch <- 0 # reset 
+  poke <- vector('numeric', length = runs) # reset
+  while (sum(unique(poke)) < sum(1:shiny_rate)){ # check if unique sequence 1:shiny_rate exists
+    catch <- catch + 1 # catch pokemon
+    p <- sample(1:shiny_rate, 1) # check shiny value
+    poke[catch] <- p #store pokemon shiny value
+  }
+  print(paste("Shiny caught!!", catch))
+  results[i] <- catch
+}
+ 
+avg = mean(results)
+```
+
+```{r}
+# Simulates catches given shiny rate and provides average number needed for a shiny catch
+shiny_rate <- 50
+
+if(shiny_rate > 200){ #max number of runs =1000
+  runs = 1000
+} else{
+  runs = shiny_rate*5
+}
+results <- vector('numeric', length = runs)
+ 
+for (i in 1:runs){
+  catch <- 0 # reset 
+  poke <- vector('numeric', length = runs) # reset
+  while (!(shiny_rate %in% poke)){ # check if shiny value contained in poke vector
+    catch <- catch + 1 # catch pokemon
+    p <- sample(1:shiny_rate, 1) # check shiny value
+    poke[catch] <- p #store pokemon shiny value
+  }
+  print(paste("Shiny caught!!", catch))
+  results[i] <- catch
+}
+ 
+avg = mean(results)
+min = min(results)
+max = max(results)
+```
+

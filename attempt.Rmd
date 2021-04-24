@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
 library(tidyverse)
 library(multicool)
 library(broom)
-library(rsample)
+#library(rsample)
 ```
 
 ## Problem 1
@@ -22,7 +22,7 @@ Seems as though this problem requires Stirling numbers of the second kind
 ```{r}
 # Attempt 1 - code function explicitly 
 # Set up variables and matricies
-k <- 66 # number of unique philosphers
+k <- 200 # number of unique philosphers
 n <- 100  # number of simulated cereal boxes - does not compute at n > 10
 i <- 0
 j <- 0
@@ -81,7 +81,7 @@ Stirling2(n, k)
 # 4th attempt - Create an experimental model
 # Initialize variables and matricies
 runs <- 1000
-n <- 66
+n <- 200
 purchased <- 0
 phil <- vector('numeric', length = 1000)
 results <- vector('numeric', length = runs)
@@ -94,7 +94,7 @@ for (i in 1:runs){
     purchased <- purchased + 1 # buy cereal first
     p <- sample(1:66, 1) # look at prize
     phil[purchased] <- p #store prize
-   }
+  }
   results[i] <- purchased
 }
  
