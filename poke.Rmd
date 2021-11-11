@@ -39,7 +39,7 @@ avg = mean(results)
 
 ```{r}
 # Simulates catches given shiny rate and provides average number needed for a shiny catch
-shiny_rate <- 50
+shiny_rate <- 512
 
 if(shiny_rate > 200){ #max number of runs =1000
   runs = 1000
