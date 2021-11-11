@@ -7,6 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
 ```
 
 
@@ -61,7 +63,28 @@ for (i in 1:runs){
 }
  
 avg = mean(results)
+median = median(results)
 min = min(results)
 max = max(results)
+
+plot <- as.data.frame(results)
+ggplot(data = plot)+
+  geom_histogram(aes(x = results, y = ..density..),
+                 color = "darkgrey", fill = "lightblue",
+                 alpha = 0.6)+
+  geom_density(aes(x = results, y = ..density..), color = "darkblue")+
+  geom_segment(x = avg, xend = avg,
+               y = 0, yend = 0.002,
+               color = "red", size= 1, linetype = "dashed") +
+  geom_segment(x = median, xend = median,
+               y = 0, yend = 0.002,
+               color = "orange", size= 1, linetype = "dashed") +
+  geom_text(label = paste("Average:", as.character(round(avg))), color = "red", 
+            x = (1500), y = 0.001) + 
+  geom_text(label = paste("Median:", as.character(round(median))), color = "orange", 
+            x = (1500), y = 0.0009) + 
+  theme_bw()+
+  labs(x = "Shiny Catch", y = "")
+
 ```
 
