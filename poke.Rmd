@@ -14,7 +14,7 @@ library(tidyverse)
 
 ```{r}
 # Simulates catches given shiny rate and provides average number needed to ensure shiny catch
-shiny_rate <- 50
+shiny_rate <- 20
 
 if(shiny_rate > 200){ #max number of runs =1000
   runs = 1000
@@ -27,7 +27,7 @@ results <- vector('numeric', length = runs)
 for (i in 1:runs){
   catch <- 0 # reset 
   poke <- vector('numeric', length = runs) # reset
-  while (sum(unique(poke)) < sum(1:shiny_rate)){ # check if unique sequence 1:shiny_rate exists
+  while (!shiny_rate%in%poke){ # check if shiny is in poke vector
     catch <- catch + 1 # catch pokemon
     p <- sample(1:shiny_rate, 1) # check shiny value
     poke[catch] <- p #store pokemon shiny value
@@ -40,13 +40,13 @@ avg = mean(results)
 ```
 
 ```{r}
-# Simulates catches given shiny rate and provides average number needed for a shiny catch
+# Does the same as above, but also makes a chart
 shiny_rate <- 512
 
 if(shiny_rate > 200){ #max number of runs =1000
   runs = 1000
 } else{
-  runs = shiny_rate*5
+  runs = 750
 }
 results <- vector('numeric', length = runs)
  
@@ -74,15 +74,15 @@ ggplot(data = plot)+
                  alpha = 0.6)+
   geom_density(aes(x = results, y = ..density..), color = "darkblue")+
   geom_segment(x = avg, xend = avg,
-               y = 0, yend = 0.002,
+               y = 0, yend = 2/shiny_rate,
                color = "red", size= 1, linetype = "dashed") +
   geom_segment(x = median, xend = median,
-               y = 0, yend = 0.002,
+               y = 0, yend = 2/shiny_rate,
                color = "orange", size= 1, linetype = "dashed") +
   geom_text(label = paste("Average:", as.character(round(avg))), color = "red", 
-            x = (1500), y = 0.001) + 
+            x = (shiny_rate*2), y = 0.5/shiny_rate) + 
   geom_text(label = paste("Median:", as.character(round(median))), color = "orange", 
-            x = (1500), y = 0.0009) + 
+            x = (shiny_rate*2), y = 0.45/shiny_rate) + 
   theme_bw()+
   labs(x = "Shiny Catch", y = "")
 
